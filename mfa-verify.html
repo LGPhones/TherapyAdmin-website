@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two-Factor Authentication — TherapyAdmin AI</title>
+<meta name="theme-color" content="#3d5a4a">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sage:#5a7a6a;--sage-light:#8aab98;--sage-dark:#3d5a4a;
+    --cream:#f7f3ee;--warm:#fdfaf7;--charcoal:#2a2a2a;
+    --soft:#555;--stone:#9a9088;--amber:#c4843a;
+    --red:#c0392b;--border:rgba(0,0,0,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'DM Sans',sans-serif;
+    background:var(--cream);
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+
+  /* ── LEFT PANEL ── */
+  .left{
+    background:var(--sage-dark);
+    display:flex;flex-direction:column;
+    justify-content:space-between;
+    padding:48px 56px;
+    position:relative;
+    overflow:hidden;
+  }
+  .left::before{
+    content:'';position:absolute;top:-80px;right:-80px;
+    width:400px;height:400px;
+    background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 70%);
+    border-radius:50%;
+  }
+  .left-logo{
+    font-family:'Playfair Display',serif;font-size:22px;color:white;
+    position:relative;z-index:2;
+  }
+  .left-logo span{color:var(--amber);font-style:italic}
+  .left-body{position:relative;z-index:2}
+  .left-tagline{
+    font-family:'Playfair Display',serif;
+    font-size:38px;font-weight:600;line-height:1.2;
+    color:white;margin-bottom:20px;
+  }
+  .left-tagline em{font-style:italic;color:var(--amber)}
+  .left-sub{font-size:16px;font-weight:300;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:40px}
+
+  /* ── RIGHT PANEL ── */
+  .right{
+    display:flex;align-items:center;justify-content:center;
+    padding:48px 32px;background:var(--warm);
+  }
+  .mfa-card{width:100%;max-width:420px}
+
+  .mfa-title{
+    font-family:'Playfair Display',serif;
+    font-size:28px;font-weight:600;
+    color:var(--charcoal);margin-bottom:6px;
+  }
+  .mfa-sub{font-size:14px;color:var(--stone);font-weight:300;margin-bottom:32px;line-height:1.6}
+
+  /* ── CODE INPUT ── */
+  .code-inputs{
+    display:flex;gap:10px;justify-content:center;margin-bottom:24px;
+  }
+  .code-input{
+    width:48px;height:56px;
+    text-align:center;font-size:24px;font-weight:500;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    background:white;
+    color:var(--charcoal);
+    outline:none;
+    transition:border-color .2s;
+  }
+  .code-input:focus{border-color:var(--sage)}
+  .code-input.error{border-color:var(--red)}
+  .code-input.success{border-color:var(--sage)}
+
+  .error-msg{
+    color:var(--red);font-size:13px;text-align:center;margin-bottom:16px;
+    display:none;
+  }
+  .error-msg.show{display:block}
+
+  .btn-row{display:flex;gap:12px;margin-top:24px}
+  .btn{
+    flex:1;padding:14px;border-radius:8px;font-family:'DM Sans',sans-serif;
+    font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;border:none;
+  }
+  .btn-primary{background:var(--sage-dark);color:white}
+  .btn-primary:hover{background:var(--sage)}
+  .btn-ghost{background:transparent;color:var(--soft);border:1.5px solid var(--border)}
+  .btn-ghost:hover{border-color:var(--sage);color:var(--sage-dark)}
+
+  /* ── BACKUP CODE ── */
+  .backup-link{
+    display:block;text-align:center;margin-top:20px;
+    font-size:13px;color:var(--stone);cursor:pointer;
+    text-decoration:none;
+  }
+  .backup-link:hover{color:var(--sage-dark)}
+
+  .backup-input{
+    width:100%;padding:12px 14px;
+    border:1.5px solid var(--border);border-radius:8px;
+    font-family:'DM Sans',sans-serif;font-size:14px;
+    margin-top:16px;display:none;
+  }
+  .backup-input.show{display:block}
+
+  @media(max-width:600px){
+    body{grid-template-columns:1fr}
+    .left{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div class="left-logo">TherapyAdmin <span>AI</span></div>
+  <div class="left-body">
+    <h1 class="left-tagline">Two-Factor<br><em>Authentication</em></h1>
+    <p class="left-sub">Enter the 6-digit code from your authenticator app to sign in.</p>
+  </div>
+</div>
+
+<div class="right">
+  <div class="mfa-card">
+    <h2 class="mfa-title">Verify Your Identity</h2>
+    <p class="mfa-sub">Enter the 6-digit code from your authenticator app</p>
+
+    <div class="code-inputs">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 1">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 2">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 3">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 4">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 5">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 6">
+    </div>
+
+    <p class="error-msg" id="errorMsg">Invalid code. Please try again.</p>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="useBackupBtn">Use Backup Code</button>
+      <button class="btn btn-primary" id="verifyBtn">Verify</button>
+    </div>
+
+    <input type="text" class="backup-input" id="backupInput" placeholder="Enter backup code">
+    <a href="#" class="backup-link" id="backLink" style="display:none">← Back to authenticator</a>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+const inputs = document.querySelectorAll('.code-input');
+const errorMsg = document.getElementById('errorMsg');
+const verifyBtn = document.getElementById('verifyBtn');
+const useBackupBtn = document.getElementById('useBackupBtn');
+const backupInput = document.getElementById('backupInput');
+const backLink = document.getElementById('backLink');
+
+// Auto-focus first input
+inputs[0].focus();
+
+// Handle input navigation
+inputs.forEach((input, index) => {
+  input.addEventListener('input', (e) => {
+    const val = e.target.value.replace(/\D/g, '');
+    e.target.value = val;
+    if (val && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+    }
+    errorMsg.classList.remove('show');
+    inputs.forEach(i => i.classList.remove('error'));
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !input.value && index > 0) {
+      inputs[index - 1].focus();
+    }
+  });
+
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const paste = (e.clipboardData || window.clipboardData).getData('text');
+    const digits = paste.replace(/\D/g, '').slice(0, 6);
+    digits.split('').forEach((d, i) => {
+      if (inputs[i]) inputs[i].value = d;
+    });
+    if (digits.length === 6) inputs[5].focus();
+  });
+});
+
+// Toggle backup code mode
+useBackupBtn.addEventListener('click', () => {
+  inputs.forEach(i => i.style.display = 'none');
+  verifyBtn.textContent = 'Use Backup Code';
+  backupInput.style.display = 'block';
+  backLink.style.display = 'block';
+  useBackupBtn.style.display = 'none';
+});
+
+backLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  inputs.forEach(i => { i.style.display = ''; i.value = ''; });
+  verifyBtn.textContent = 'Verify';
+  backupInput.style.display = 'none';
+  backLink.style.display = 'none';
+  useBackupBtn.style.display = 'block';
+  inputs[0].focus();
+});
+
+// Verify MFA code
+verifyBtn.addEventListener('click', async () => {
+  const isBackupMode = backupInput.style.display === 'block';
+  const code = isBackupMode ? backupInput.value.trim() : 
+    Array.from(inputs).map(i => i.value).join('');
+  
+  if (code.length !== 6 && !isBackupMode) {
+    errorMsg.textContent = 'Please enter a 6-digit code.';
+    errorMsg.classList.add('show');
+    return;
+  }
+
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = 'Verifying...';
+
+  try {
+    const res = await fetch('/api/mfa/verify', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        code,
+        isBackup: isBackupMode
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      // MFA verified - redirect to dashboard
+      Auth.clearMfaPending();
+      window.location.href = '/dashboard.html';
+    } else {
+      errorMsg.textContent = data.error || 'Invalid code. Please try again.';
+      errorMsg.classList.add('show');
+      inputs.forEach(i => i.classList.add('error'));
+      inputs[0].focus();
+    }
+  } catch (err) {
+    errorMsg.textContent = 'Connection error. Please try again.';
+    errorMsg.classList.add('show');
+  }
+
+  verifyBtn.disabled = false;
+  verifyBtn.textContent = isBackupMode ? 'Use Backup Code' : 'Verify';
+});
+
+// Enter key to submit
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') verifyBtn.click();
+});
+</script>
+</body>
+</html>

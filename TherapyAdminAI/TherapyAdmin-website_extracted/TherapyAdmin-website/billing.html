@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upgrade — TherapyAdmin AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--sage:#5a7a6a;--sage-light:#8aab98;--sage-dark:#3d5a4a;--sage-pale:#e8f0ec;--cream:#f7f3ee;--warm:#fdfaf7;--charcoal:#2a2a2a;--soft:#505050;--stone:#9a9088;--amber:#c4843a;--amber-light:#e8c89a;--amber-pale:#fdf3e4;--rose:#9e5a5a;--border:rgba(0,0,0,0.09);--sidebar:260px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--charcoal)}
+.layout{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}
+.sidebar{background:var(--sage-dark);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;width:var(--sidebar);z-index:50}
+.sidebar-logo{padding:22px 24px 18px;font-family:'Playfair Display',serif;font-size:19px;color:white;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.sidebar-logo span{color:var(--amber);font-style:italic}
+.nav-item{display:flex;align-items:center;gap:12px;padding:9px 16px;border-radius:7px;margin:1px 8px;cursor:pointer;color:rgba(255,255,255,.65);font-size:14px;transition:all .18s;text-decoration:none}
+.nav-item:hover{background:rgba(255,255,255,.08);color:white}
+.nav-item.active{background:rgba(255,255,255,.13);color:white;font-weight:500}
+.nav-section{padding:16px 12px 6px;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,.08)}
+.user-row{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500;color:white}
+.user-plan{font-size:11px;color:rgba(255,255,255,.4)}
+.main{margin-left:var(--sidebar);padding:0 32px 60px}
+.topbar{position:sticky;top:0;z-index:40;height:60px;background:rgba(253,250,247,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;margin:0 -32px 36px}
+.topbar-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:600}
+.topbar-spacer{flex:1}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--stone);text-decoration:none;cursor:pointer;transition:color .15s}
+.back-btn:hover{color:var(--sage-dark)}
+
+/* HERO */
+.billing-hero{text-align:center;padding:0 0 48px}
+.billing-tag{display:inline-block;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);border:1px solid var(--sage-light);padding:4px 14px;border-radius:20px;margin-bottom:18px}
+.billing-hero h1{font-family:'Playfair Display',serif;font-size:42px;font-weight:600;line-height:1.2;margin-bottom:14px}
+.billing-hero h1 em{font-style:italic;color:var(--sage-dark)}
+.billing-hero p{font-size:16px;color:var(--soft);font-weight:300;max-width:520px;margin:0 auto 28px;line-height:1.65}
+.toggle-row{display:flex;align-items:center;justify-content:center;gap:14px;font-size:14px}
+.toggle-switch{width:44px;height:24px;background:var(--sage-dark);border-radius:12px;position:relative;cursor:pointer;transition:background .2s}
+.toggle-switch::after{content:'';position:absolute;width:18px;height:18px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .2s}
+.toggle-switch.annual::after{transform:translateX(20px)}
+.save-chip{background:var(--amber-pale);color:var(--amber);font-size:11px;font-weight:500;padding:3px 9px;border-radius:10px}
+
+/* PLANS */
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:960px;margin:0 auto 60px}
+.plan-card{background:white;border:1.5px solid var(--border);border-radius:16px;overflow:hidden;position:relative;transition:transform .2s,box-shadow .2s}
+.plan-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1)}
+.plan-card.featured{border-color:var(--sage-dark);box-shadow:0 4px 24px rgba(61,90,74,.15)}
+.plan-top{padding:28px 28px 20px;border-bottom:1px solid var(--border)}
+.plan-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--sage-dark);color:white;font-size:10px;font-weight:500;padding:4px 16px;border-radius:0 0 10px 10px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.plan-tier{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
+.plan-price{display:flex;align-items:flex-end;gap:4px;margin-bottom:6px}
+.plan-price .amount{font-family:'Playfair Display',serif;font-size:52px;font-weight:600;line-height:1;color:var(--charcoal)}
+.plan-price .currency{font-size:20px;font-weight:400;color:var(--stone);margin-bottom:8px}
+.plan-price .period{font-size:13px;color:var(--stone);margin-bottom:10px}
+.plan-desc{font-size:13px;color:var(--soft);line-height:1.55;font-weight:300}
+.plan-body{padding:22px 28px}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:24px}
+.plan-features li{font-size:13px;color:var(--soft);display:flex;gap:10px;align-items:flex-start;line-height:1.45}
+.plan-features li::before{content:'✓';color:var(--sage);font-weight:500;font-size:12px;flex-shrink:0;margin-top:1px}
+.plan-features li.limit::before{content:'—';color:var(--muted)}
+.plan-cta{display:block;width:100%;padding:13px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none;transition:all .2s;border:1.5px solid var(--border);background:white;color:var(--charcoal)}
+.plan-cta:hover{border-color:var(--sage);color:var(--sage-dark)}
+.plan-cta.primary{background:var(--sage-dark);color:white;border-color:var(--sage-dark)}
+.plan-cta.primary:hover{background:var(--sage)}
+.plan-cta.current{background:var(--sage-pale);color:var(--sage-dark);border-color:var(--sage-light);cursor:default}
+
+/* COMPARE TABLE */
+.compare-section{max-width:900px;margin:0 auto 60px}
+.compare-section h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:600;text-align:center;margin-bottom:32px}
+.compare-table{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.compare-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;background:var(--cream);padding:14px 20px;border-bottom:1px solid var(--border)}
+.ch{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--stone);text-align:center}
+.ch:first-child{text-align:left}
+.compare-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:13px 20px;border-bottom:1px solid var(--border);align-items:center}
+.compare-row:last-child{border:none}
+.compare-row:hover{background:var(--cream)}
+.cr-label{font-size:13px;color:var(--charcoal)}
+.cr-label .cr-sub{font-size:11px;color:var(--stone);margin-top:1px}
+.cr-val{font-size:13px;text-align:center;color:var(--soft)}
+.cr-yes{color:var(--sage);font-size:16px;text-align:center}
+.cr-no{color:var(--muted);font-size:16px;text-align:center}
+
+/* FAQ */
+.faq-section{max-width:680px;margin:0 auto 60px}
+.faq-section h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:600;text-align:center;margin-bottom:32px}
+.faq-item{border-bottom:1px solid var(--border);padding:18px 0;cursor:pointer}
+.faq-item:last-child{border:none}
+.faq-q{font-size:15px;font-weight:500;color:var(--charcoal);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-arrow{color:var(--stone);font-size:18px;transition:transform .2s;flex-shrink:0}
+.faq-a{font-size:14px;color:var(--soft);line-height:1.7;margin-top:10px;display:none;font-weight:300}
+.faq-item.open .faq-arrow{transform:rotate(45deg)}
+.faq-item.open .faq-a{display:block}
+
+/* TRUST */
+.trust-row{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
+.trust-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--soft)}
+.trust-icon{font-size:20px}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;right:28px;z-index:200;background:var(--charcoal);color:white;padding:12px 18px;border-radius:8px;font-size:13px;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.main{margin-left:0}.plans-grid{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}.compare-head,.compare-row{grid-template-columns:2fr 1fr 1fr}.ch:last-child,.cr-val:last-child,.cr-yes:last-child,.cr-no:last-child{display:none}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">TherapyAdmin<span>AI</span></div>
+  <div class="nav-section">Workspace</div>
+  <a class="nav-item" href="dashboard.html">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6.5L8 2l6 4.5V14a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z"/><path d="M6 15V9h4v6"/></svg>Dashboard</a>
+  <a class="nav-item" href="dashboard.html">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1z"/><path d="M5 8h6M5 5h3M5 11h4"/></svg>Generate Document</a>
+  <a class="nav-item active" href="billing.html">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="14" height="10" rx="1"/><path d="M1 7h14M5 11h2"/></svg>Billing & Plans</a>
+  <div class="sidebar-footer">
+    <div class="user-row"><div class="user-avatar">DR</div><div><div class="user-name">Dr. Sarah Reeves</div><div class="user-plan">Free Trial — 11 days left</div></div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <a class="back-btn" href="dashboard.html">← Back to Dashboard</a>
+    <div class="topbar-spacer"></div>
+  </div>
+
+  <!-- HERO -->
+  <div class="billing-hero">
+    <div class="billing-tag">Simple Pricing</div>
+    <h1>Less than one billable hour.<br><em>Every month.</em></h1>
+    <p>Cancel anytime. HIPAA BAA included with every plan. Your data is yours — always exportable.</p>
+    <div class="toggle-row">
+      <span style="color:var(--soft)">Monthly</span>
+      <div class="toggle-switch annual" id="billing-toggle" onclick="toggleBilling()"></div>
+      <span style="font-weight:500">Annual</span>
+      <span class="save-chip">Save 20%</span>
+    </div>
+  </div>
+
+  <!-- PLANS -->
+  <div class="plans-grid">
+
+    <!-- Starter -->
+    <div class="plan-card">
+      <div class="plan-top">
+        <div class="plan-tier">Starter</div>
+        <div class="plan-price">
+          <span class="currency">$</span>
+          <span class="amount" id="price-starter">39</span>
+          <span class="period">/mo</span>
+        </div>
+        <div class="plan-desc">Everything a solo practitioner needs to reclaim their evenings.</div>
+      </div>
+      <div class="plan-body">
+        <ul class="plan-features">
+          <li>All 6 document modules</li>
+          <li>60 documents per month</li>
+          <li>1 voice profile</li>
+          <li>PDF + plain text download</li>
+          <li>HIPAA BAA included</li>
+          <li>Email support</li>
+          <li class="limit" style="color:var(--stone)">No custom branding</li>
+          <li class="limit" style="color:var(--stone)">No insurance appeal library</li>
+        </ul>
+        <a class="plan-cta" onclick="checkout('starter')">Start with Starter</a>
+      </div>
+    </div>
+
+    <!-- Professional (featured) -->
+    <div class="plan-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-top" style="padding-top:38px">
+        <div class="plan-tier">Professional</div>
+        <div class="plan-price">
+          <span class="currency">$</span>
+          <span class="amount" id="price-pro">71</span>
+          <span class="period">/mo</span>
+        </div>
+        <div class="plan-desc">For practitioners who generate documents daily and want the full suite.</div>
+      </div>
+      <div class="plan-body">
+        <ul class="plan-features">
+          <li>Everything in Starter</li>
+          <li>Unlimited documents</li>
+          <li>Priority generation speed</li>
+          <li>Custom practice branding on PDFs</li>
+          <li>Insurance appeal letter library (payer-specific)</li>
+          <li>Voice profile refinement & history</li>
+          <li>Word (.docx) download</li>
+          <li>Priority email + chat support</li>
+        </ul>
+        <a class="plan-cta primary" onclick="checkout('professional')">Start Free Trial →</a>
+      </div>
+    </div>
+
+    <!-- Group -->
+    <div class="plan-card">
+      <div class="plan-top">
+        <div class="plan-tier">Group Practice</div>
+        <div class="plan-price">
+          <span class="currency">$</span>
+          <span class="amount" id="price-group">119</span>
+          <span class="period">/mo</span>
+        </div>
+        <div class="plan-desc">Up to 5 providers. Shared templates and admin oversight dashboard.</div>
+      </div>
+      <div class="plan-body">
+        <ul class="plan-features">
+          <li>Everything in Professional</li>
+          <li>5 clinician voice profiles</li>
+          <li>Shared template library</li>
+          <li>Admin dashboard with usage reports</li>
+          <li>Team document history</li>
+          <li>Centralized billing</li>
+          <li>Dedicated onboarding call</li>
+        </ul>
+        <a class="plan-cta" onclick="checkout('group')">Start with Group</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- COACHING CALLOUT -->
+  <div style="max-width:960px;margin:0 auto 48px;background:var(--amber-pale);border:1px solid rgba(196,132,58,.2);border-radius:12px;padding:24px 32px;display:flex;align-items:center;gap:24px">
+    <div style="font-size:36px">🧭</div>
+    <div style="flex:1">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Life coaches, executive coaches & health coaches</div>
+      <div style="font-size:13px;color:var(--soft);line-height:1.6">The Coaching Edition is built specifically for non-clinical practitioners. No HIPAA requirements, no clinical modules — just powerful admin tools for your practice. $31/mo annual or $39/mo monthly.</div>
+    </div>
+    <a onclick="checkout('coaching')" style="background:var(--amber);color:white;padding:10px 22px;border-radius:7px;font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;white-space:nowrap;transition:all .18s" onmouseover="this.style.background='#d4933f'" onmouseout="this.style.background='var(--amber)'">Get Coaching Edition</a>
+  </div>
+
+  <!-- COMPARE TABLE -->
+  <div class="compare-section">
+    <h2>Compare plans in detail</h2>
+    <div class="compare-table">
+      <div class="compare-head">
+        <div class="ch">Feature</div>
+        <div class="ch">Starter</div>
+        <div class="ch">Professional</div>
+        <div class="ch">Group</div>
+      </div>
+      <div id="compare-rows"></div>
+    </div>
+  </div>
+
+  <!-- TRUST -->
+  <div class="trust-row">
+    <div class="trust-item"><span class="trust-icon">🔒</span> HIPAA-compliant</div>
+    <div class="trust-item"><span class="trust-icon">📄</span> BAA on every plan</div>
+    <div class="trust-item"><span class="trust-icon">↩</span> Cancel anytime</div>
+    <div class="trust-item"><span class="trust-icon">💳</span> Powered by Stripe</div>
+    <div class="trust-item"><span class="trust-icon">🏥</span> SOC 2 in progress</div>
+    <div class="trust-item"><span class="trust-icon">📤</span> Data always exportable</div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <h2>Common questions</h2>
+    <div id="faq-list"></div>
+  </div>
+</div>
+</div>
+<div id="toast"></div>
+
+<script>
+let isAnnual = true;
+const prices = {
+  starter:  {monthly:49, annual:39},
+  pro:      {monthly:89, annual:71},
+  group:    {monthly:149,annual:119},
+  coaching: {monthly:39, annual:31},
+};
+
+function toggleBilling() {
+  isAnnual = !isAnnual;
+  document.getElementById('billing-toggle').classList.toggle('annual', isAnnual);
+  document.getElementById('price-starter').textContent = isAnnual ? prices.starter.annual  : prices.starter.monthly;
+  document.getElementById('price-pro').textContent     = isAnnual ? prices.pro.annual      : prices.pro.monthly;
+  document.getElementById('price-group').textContent   = isAnnual ? prices.group.annual    : prices.group.monthly;
+}
+
+// Start on annual
+document.getElementById('price-starter').textContent = prices.starter.annual;
+document.getElementById('price-pro').textContent     = prices.pro.annual;
+document.getElementById('price-group').textContent   = prices.group.annual;
+
+async function checkout(plan) {
+  toast('Redirecting to secure checkout...');
+  // Real implementation:
+  // const res = await fetch('/api/create-checkout', {method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({plan,annual:isAnnual})});
+  // const {url} = await res.json();
+  // window.location.href = url;
+  setTimeout(() => toast('Stripe checkout ready — connect your backend to go live ✓'), 1200);
+}
+
+// Compare table
+const compareRows = [
+  ['Document modules',         '6 modules','6 modules','6 modules'],
+  ['Documents per month',      '60','Unlimited','Unlimited'],
+  ['Voice profiles',           '1','1','5 (per clinician)'],
+  ['PDF download',             '✓','✓','✓'],
+  ['Word (.docx) download',    '—','✓','✓'],
+  ['Custom practice branding', '—','✓','✓'],
+  ['Insurance appeal library', '—','✓','✓'],
+  ['Voice refinement history', '—','✓','✓'],
+  ['Admin dashboard',          '—','—','✓'],
+  ['Team template library',    '—','—','✓'],
+  ['Usage reporting',          '—','—','✓'],
+  ['HIPAA BAA',                '✓','✓','✓'],
+  ['Priority support',         '—','✓','✓'],
+  ['Onboarding call',          '—','—','✓'],
+];
+document.getElementById('compare-rows').innerHTML = compareRows.map(([label,...vals])=>
+  `<div class="compare-row">
+    <div class="cr-label">${label}</div>
+    ${vals.map(v=>`<div class="${v==='✓'?'cr-yes':v==='—'?'cr-no':'cr-val'}">${v}</div>`).join('')}
+  </div>`
+).join('');
+
+// FAQ
+const faqs = [
+  ['Is my client data HIPAA-compliant?','Yes. All plans include a HIPAA Business Associate Agreement (BAA) executed at signup. PHI is encrypted at rest and in transit, and never used to train AI models. Our infrastructure runs on HIPAA-eligible AWS services.'],
+  ['Can I cancel anytime?','Absolutely. Cancel from your account settings with one click. You keep access until the end of your billing period. No questions, no fees.'],
+  ['What happens at the end of my free trial?','You\'ll receive an email before your trial ends. If you don\'t upgrade, your account moves to read-only mode — you can still view and download your existing documents, but can\'t generate new ones.'],
+  ['Can I switch plans?','Yes, upgrade or downgrade anytime. Upgrades take effect immediately (prorated). Downgrades take effect at your next billing date.'],
+  ['Do you offer discounts for new practitioners?','Yes — graduate students, supervised associates, and practitioners in their first year of private practice qualify for 30% off. Email us with your license information.'],
+  ['Is TherapyAdmin AI a replacement for my EHR?','No — and that\'s by design. We integrate with any EHR or none at all. You generate documents here, then copy or download them into your existing workflow. No migration required.'],
+  ['What AI model powers this?','Documents are generated using Anthropic\'s Claude — one of the most capable and privacy-focused AI systems available. Anthropic has signed a HIPAA BAA with us, and your data is not used for model training.'],
+];
+document.getElementById('faq-list').innerHTML = faqs.map(([q,a],i)=>`
+  <div class="faq-item" onclick="toggleFaq(${i})">
+    <div class="faq-q">${q}<span class="faq-arrow">+</span></div>
+    <div class="faq-a">${a}</div>
+  </div>`).join('');
+
+function toggleFaq(i) {
+  document.querySelectorAll('.faq-item')[i].classList.toggle('open');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

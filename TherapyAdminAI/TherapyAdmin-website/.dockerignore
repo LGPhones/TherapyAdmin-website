@@ -1,0 +1,18 @@
+# Exclude local node modules (npm ci installs fresh Alpine binaries)
+node_modules/
+
+# Exclude local database and configuration secrets
+therapyadmin.db
+.env
+.env.example
+
+# Exclude system files and log files
+.DS_Store
+server.log
+server.pid
+.git/
+
+# Exclude Vercel-specific files
+.vercel/
+.vercelignore
+vercel.json

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enable Two-Factor — TherapyAdmin AI</title>
+<meta name="theme-color" content="#3d5a4a">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sage:#5a7a6a;--sage-light:#8aab98;--sage-dark:#3d5a4a;
+    --cream:#f7f3ee;--warm:#fdfaf7;--charcoal:#2a2a2a;
+    --soft:#555;--stone:#9a9088;--amber:#c4843a;
+    --red:#c0392b;--border:rgba(0,0,0,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'DM Sans',sans-serif;
+    background:var(--cream);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .header{
+    padding:20px 40px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:white;
+    border-bottom:1px solid var(--border);
+  }
+  .logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--sage-dark)}
+  .logo span{color:var(--amber);font-style:italic}
+  .back-btn{font-size:14px;color:var(--stone);text-decoration:none}
+  .back-btn:hover{color:var(--sage-dark)}
+
+  .container{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px 20px;
+  }
+
+  .card{
+    background:white;
+    border-radius:16px;
+    padding:48px;
+    max-width:520px;
+    width:100%;
+    box-shadow:0 4px 24px rgba(0,0,0,.07);
+  }
+
+  .step{display:none}
+  .step.active{display:block}
+
+  .step-label{
+    font-size:11px;font-weight:500;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--sage);margin-bottom:12px
+  }
+  .step-title{
+    font-family:'Playfair Display',serif;
+    font-size:28px;font-weight:600;margin-bottom:10px
+  }
+  .step-sub{
+    font-size:15px;color:var(--soft);font-weight:300;
+    line-height:1.65;margin-bottom:32px
+  }
+
+  .qr-container{
+    text-align:center;
+    margin:24px 0;
+  }
+  .qr-code{
+    display:inline-block;
+    padding:16px;
+    background:white;
+    border:1px solid var(--border);
+    border-radius:12px;
+  }
+  .qr-code img{max-width:200px}
+
+  .secret-box{
+    background:var(--cream);
+    padding:16px;
+    border-radius:8px;
+    text-align:center;
+    margin:20px 0;
+  }
+  .secret-box code{
+    font-family:monospace;font-size:16px;
+    letter-spacing:2px;
+    word-break:break-all;
+  }
+
+  .code-inputs{
+    display:flex;gap:10px;justify-content:center;margin:24px 0;
+  }
+  .code-input{
+    width:48px;height:56px;
+    text-align:center;font-size:24px;font-weight:500;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    background:white;
+    color:var(--charcoal);
+    outline:none;
+    transition:border-color .2s;
+  }
+  .code-input:focus{border-color:var(--sage)}
+  .code-input.error{border-color:var(--red)}
+
+  .error-msg{
+    color:var(--red);font-size:13px;text-align:center;margin-bottom:16px;
+    display:none;
+  }
+  .error-msg.show{display:block}
+
+  .btn-row{display:flex;gap:12px;margin-top:32px}
+  .btn{
+    flex:1;padding:14px;border-radius:8px;font-family:'DM Sans',sans-serif;
+    font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;border:none;
+  }
+  .btn-primary{background:var(--sage-dark);color:white}
+  .btn-primary:hover{background:var(--sage)}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--soft);border:1.5px solid var(--border)}
+
+  .backup-codes{
+    background:var(--cream);
+    padding:20px;
+    border-radius:12px;
+    margin:20px 0;
+  }
+  .backup-codes h4{
+    font-size:12px;font-weight:500;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--stone);margin-bottom:12px
+  }
+  .codes-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  }
+  .code-item{
+    font-family:monospace;font-size:13px;
+    padding:8px 12px;
+    background:white;
+    border-radius:6px;
+    color:var(--charcoal);
+  }
+
+  .success-check{
+    text-align:center;
+    padding:40px 0;
+  }
+  .success-icon{
+    width:80px;height:80px;
+    background:var(--sage);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 24px;
+    font-size:40px;color:white;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">TherapyAdmin <span>AI</span></div>
+  <a href="/dashboard.html" class="back-btn">← Back to Dashboard</a>
+</div>
+
+<div class="container">
+  <div class="card">
+    <!-- Step 1: Intro -->
+    <div class="step active" id="step1">
+      <p class="step-label">Step 1 of 3</p>
+      <h2 class="step-title">Enable Two-Factor Authentication</h2>
+      <p class="step-sub">Add an extra layer of security to your account by requiring a verification code in addition to your password.</p>
+      
+      <div style="background:var(--cream);padding:20px;border-radius:12px;margin-bottom:24px">
+        <h4 style="font-size:14px;margin-bottom:12px">What you'll need:</h4>
+        <ul style="font-size:14px;color:var(--soft);line-height:2">
+          <li>✓ An authenticator app (Google Authenticator, Authy, 1Password, etc.)</li>
+          <li>✓ Your phone to scan the QR code</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-primary" id="startBtn">Get Started</button>
+    </div>
+
+    <!-- Step 2: Scan QR -->
+    <div class="step" id="step2">
+      <p class="step-label">Step 2 of 3</p>
+      <h2 class="step-title">Scan QR Code</h2>
+      <p class="step-sub">Open your authenticator app and scan this QR code:</p>
+
+      <div class="qr-container">
+        <div class="qr-code">
+          <canvas id="qrCanvas"></canvas>
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:var(--stone);text-align:center;margin-bottom:20px">
+        Can't scan? <a href="#" id="showSecretLink" style="color:var(--sage-dark)">Enter key manually</a>
+      </p>
+
+      <div class="secret-box" id="secretBox" style="display:none">
+        <p style="font-size:12px;color:var(--stone);margin-bottom:8px">Manual entry key:</p>
+        <code id="secretCode"></code>
+      </div>
+
+      <button class="btn btn-primary" id="nextStep2Btn" disabled>Next</button>
+    </div>
+
+    <!-- Step 3: Verify -->
+    <div class="step" id="step3">
+      <p class="step-label">Step 3 of 3</p>
+      <h2 class="step-title">Verify Setup</h2>
+      <p class="step-sub">Enter the 6-digit code from your authenticator app to confirm:</p>
+
+      <div class="code-inputs">
+        <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+      </div>
+
+      <p class="error-msg" id="errorMsg">Invalid code. Please try again.</p>
+
+      <button class="btn btn-primary" id="verifyBtn" disabled>Enable 2FA</button>
+    </div>
+
+    <!-- Step 4: Success -->
+    <div class="step" id="step4">
+      <div class="success-check">
+        <div class="success-icon">✓</div>
+        <h2 class="step-title">Two-Factor Enabled!</h2>
+        <p class="step-sub">Your account is now protected with 2FA.</p>
+      </div>
+
+      <div class="backup-codes">
+        <h4>Backup Codes</h4>
+        <p style="font-size:13px;color:var(--soft);margin-bottom:12px">
+          Save these codes in a safe place. You can use them if you lose access to your authenticator.
+        </p>
+        <div class="codes-grid" id="backupCodes"></div>
+      </div>
+
+      <button class="btn btn-primary" id="doneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+// Simple QR code generator (minimal implementation)
+function generateQRCode(text, canvas) {
+  // Use a simple QR placeholder - in production use qrcode library
+  const ctx = canvas.getContext('2d');
+  canvas.width = 200;
+  canvas.height = 200;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, 200, 200);
+  ctx.fillStyle = '#2a2a2a';
+  // Simple pattern to represent QR
+  for (let y = 0; y < 21; y++) {
+    for (let x = 0; x < 21; x++) {
+      if ((x + y) % 3 === 0) {
+        ctx.fillRect(20 + x * 7, 20 + y * 7, 7, 7);
+      }
+    }
+  }
+}
+
+let secret = '';
+let email = '';
+
+async function loadUserInfo() {
+  try {
+    const res = await fetch('/api/user', { credentials: 'include' });
+    const data = await res.json();
+    email = data.email || 'user@example.com';
+  } catch {
+    email = 'user@example.com';
+  }
+}
+
+loadUserInfo();
+
+// Step navigation
+const steps = document.querySelectorAll('.step');
+function showStep(n) {
+  steps.forEach((s, i) => s.classList.toggle('active', i === n - 1));
+}
+
+// Step 1: Start
+document.getElementById('startBtn').addEventListener('click', async () => {
+  // Generate secret
+  secret = MFA.generateSecret();
+  document.getElementById('secretCode').textContent = secret;
+  
+  // Generate QR
+  const uri = MFA.getOtpAuthUri(secret, email);
+  generateQRCode(uri, document.getElementById('qrCanvas'));
+  
+  showStep(2);
+});
+
+// Show secret manual entry
+document.getElementById('showSecretLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('secretBox').style.display = 'block';
+});
+
+// Step 2: Next (enable on server)
+document.getElementById('nextStep2Btn').addEventListener('click', async () => {
+  // Request MFA setup - get temp secret from server
+  try {
+    const res = await fetch('/api/mfa/setup', { 
+      method: 'POST',
+      credentials: 'include' 
+    });
+    const data = await res.json();
+    if (data.secret) secret = data.secret;
+    showStep(3);
+  } catch {
+    showStep(3);
+  }
+});
+
+// Step 3: Verify code
+const inputs = document.querySelectorAll('#step3 .code-input');
+const errorMsg = document.getElementById('errorMsg');
+const verifyBtn = document.getElementById('verifyBtn');
+
+inputs.forEach((input, index) => {
+  input.addEventListener('input', (e) => {
+    const val = e.target.value.replace(/\D/g, '');
+    e.target.value = val;
+    if (val && index < inputs.length - 1) inputs[index + 1].focus();
+    
+    const code = Array.from(inputs).map(i => i.value).join('');
+    verifyBtn.disabled = code.length !== 6;
+    errorMsg.classList.remove('show');
+    inputs.forEach(i => i.classList.remove('error'));
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !input.value && index > 0) {
+      inputs[index - 1].focus();
+    }
+  });
+});
+
+verifyBtn.addEventListener('click', async () => {
+  const code = Array.from(inputs).map(i => i.value).join('');
+  
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = 'Enabling...';
+
+  try {
+    const res = await fetch('/api/mfa/enable', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, secret }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      // Show backup codes
+      const codesGrid = document.getElementById('backupCodes');
+      codesGrid.innerHTML = data.backupCodes.map(c => 
+        `<div class="code-item">${c}</div>`
+      ).join('');
+      showStep(4);
+    } else {
+      errorMsg.textContent = data.error || 'Invalid code. Please try again.';
+      errorMsg.classList.add('show');
+      inputs.forEach(i => i.classList.add('error'));
+    }
+  } catch (err) {
+    errorMsg.textContent = 'Connection error. Please try again.';
+    errorMsg.classList.add('show');
+  }
+
+  verifyBtn.disabled = false;
+  verifyBtn.textContent = 'Enable 2FA';
+});
+
+// Step 4: Done
+document.getElementById('doneBtn').addEventListener('click', () => {
+  window.location.href = '/dashboard.html';
+});
+</script>
+</body>
+</html>
